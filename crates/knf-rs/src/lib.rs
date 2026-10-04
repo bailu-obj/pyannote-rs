@@ -73,7 +73,14 @@ mod tests {
         let frequency = 440.0; // A4 note
 
         let waveform = generate_sine_wave(sample_rate, duration, frequency);
-        let features = compute_fbank(&waveform);
-        println!("features: {:?}", features);
+        let features = compute_fbank(&waveform).expect("compute sine-wave fbank");
+        assert_eq!(features.ncols(), 80);
+        assert!(features.nrows() > 0);
+        assert!(features.iter().all(|value| value.is_finite()));
+        assert!(features
+            .mean_axis(ndarray::Axis(0))
+            .unwrap()
+            .iter()
+            .all(|mean| mean.abs() < 1e-4));
     }
 }
